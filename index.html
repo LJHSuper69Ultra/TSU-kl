@@ -1,117 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
-
-  <head>
-    <meta charset="UTF-8">
-    <title>Untitled</title>
-    
-
-  </head>
-    
-  <body>
-  <!--
-===========================================================
-ADVANCED RETRO PAINT / FRAME ANIMATION EDITOR
-Single HTML File
-Pure HTML + CSS + JavaScript
-===========================================================
-
-NEW ADVANCED FEATURES
-- Multi Frame Animation System
-- Copy Layer To Other Frame
-- Interpolation Assist
-- Brush Presets
-- Pressure Sensitivity Simulation
-- Animation Preview Player
-- Global Undo/Redo History
-- Onion Skin
-- Timeline
-
-===========================================================
--->
-
-<!DOCTYPE html>
-<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Retro Paint Animator</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Retro Animation Studio Pro (gifshot Integrated)</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gifshot/0.3.2/gifshot.min.js"></script>
 
 <style>
-
 *{
-    box-sizing:border-box;
     margin:0;
     padding:0;
+    box-sizing:border-box;
     user-select:none;
+    -webkit-user-select:none;
 }
 
 body{
     font-family:Segoe UI,Tahoma,sans-serif;
-    background:#c8c8c8;
-    height:100vh;
+    background:#d4d0c8;
     overflow:hidden;
+    height:100vh;
     display:flex;
     flex-direction:column;
 }
 
-/* =========================
-MENU
-========================= */
-
-.menu{
-    height:34px;
-    background:linear-gradient(#f5f5f5,#d2d2d2);
-    border-bottom:2px solid #888;
+/* ===== MENU ===== */
+.menu-bar{
+    height:36px;
+    background:linear-gradient(#f4f4f4,#cfcfcf);
     display:flex;
     align-items:center;
-    gap:16px;
-    padding:0 12px;
+    padding:0 10px;
+    border-bottom:2px solid #888;
+    gap:15px;
+    font-size:14px;
+    z-index: 10;
 }
 
-.menu div{
+.menu-item{
     cursor:pointer;
+    padding:4px 8px;
+    border-radius:4px;
 }
 
-/* =========================
-MAIN
-========================= */
+.menu-item:hover{
+    background:#0a64ad;
+    color:white;
+}
 
+/* ===== MAIN ===== */
 .main{
     flex:1;
     display:flex;
     overflow:hidden;
 }
 
-/* =========================
-LEFT TOOLBAR
-========================= */
-
+/* ===== TOOLBAR ===== */
 .toolbar{
-    width:90px;
-    background:#d6d6d6;
+    width:82px;
+    background:#c3c3c3;
     border-right:2px solid #888;
-    padding:6px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:8px;
+    gap:6px;
     overflow-y:auto;
 }
 
 .tool{
-    height:56px;
+    width:58px;
+    height:58px;
     border:2px solid #777;
-    background:#f2f2f2;
-    margin-bottom:6px;
+    background:#efefef;
+    cursor:pointer;
     border-radius:8px;
     display:flex;
+    flex-direction:column;
     align-items:center;
     justify-content:center;
-    text-align:center;
     font-size:11px;
-    cursor:pointer;
+    text-align:center;
     transition:.15s;
 }
 
 .tool:hover{
-    transform:scale(1.02);
+    background:#ddd;
+    transform:scale(1.03);
 }
 
 .tool.active{
@@ -119,74 +95,72 @@ LEFT TOOLBAR
     color:white;
 }
 
-/* =========================
-RIGHT
-========================= */
-
-.right{
+/* ===== RIGHT AREA ===== */
+.right-area{
     flex:1;
     display:flex;
     flex-direction:column;
     overflow:hidden;
 }
 
-/* =========================
-TOP BAR
-========================= */
-
-.topbar{
+/* ===== TOP CONTROLS ===== */
+.top-controls{
     background:#e3e3e3;
     border-bottom:2px solid #999;
     padding:8px;
     display:flex;
-    gap:8px;
     flex-wrap:wrap;
+    gap:10px;
     align-items:center;
-    overflow-y:auto;
 }
 
 .palette{
     display:grid;
-    grid-template-columns:repeat(8,20px);
+    grid-template-columns:repeat(8,22px);
     gap:4px;
 }
 
-.color{
-    width:20px;
-    height:20px;
-    border:1px solid #000;
+.color-box{
+    width:22px;
+    height:22px;
+    border:1px solid black;
     cursor:pointer;
 }
 
-.preview{
-    width:36px;
-    height:36px;
-    border:2px solid #000;
+.preview-color{
+    width:42px;
+    height:42px;
+    border:2px solid black;
 }
 
-button,input,select{
-    padding:4px;
-    font-size:12px;
+/* ===== WORKSPACE ===== */
+.workspace-container{
+    flex:1;
+    display:flex;
+    position:relative;
+    overflow:hidden;
+    background:#8f8f8f;
 }
 
-/* =========================
-WORKSPACE
-========================= */
-
-.workspace{
+.canvas-wrap{
     flex:1;
     overflow:auto;
-    background:#808080;
+    position:relative;
     display:flex;
     align-items:center;
     justify-content:center;
-    position:relative;
+    padding: 20px;
 }
 
-.canvasWrap{
+.canvas-container{
     position:relative;
     background:white;
-    box-shadow:0 0 14px rgba(0,0,0,.5);
+    box-shadow:0 0 10px rgba(0,0,0,.5);
+    transition: background-color 0.3s;
+}
+
+.canvas-container.lightbox-mode {
+    background: #555555;
 }
 
 canvas{
@@ -196,109 +170,213 @@ canvas{
     touch-action:none;
 }
 
-/* =========================
-TIMELINE
-========================= */
-
-.timeline{
-    height:110px;
-    background:#dadada;
-    border-top:2px solid #888;
-    overflow-x:auto;
-    display:flex;
-    align-items:center;
-    padding:10px;
-    gap:8px;
+.onion-prev, .onion-next, #interpolationCanvas, #gridCanvas {
+    pointer-events:none;
 }
 
-.frame{
-    min-width:90px;
-    height:80px;
-    border:3px solid #777;
-    background:white;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
-    position:relative;
-    font-size:12px;
-}
-
-.frame.active{
-    border-color:#0a64ad;
-}
-
-.frame canvas{
-    width:100%;
-    height:100%;
+#selectionBox{
     position:absolute;
+    border:2px dashed #000;
+    display:none;
+    pointer-events:none;
 }
 
-/* =========================
-PREVIEW PLAYER
-========================= */
-
-.previewPlayer{
-    position:absolute;
-    right:20px;
-    top:20px;
-    width:220px;
-    background:#efefef;
-    border:3px solid #666;
-    z-index:100;
-    padding:8px;
+/* MINI PREVIEW PLAYER WINDOW */
+.mini-player-window {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 180px;
+    height: 140px;
+    background: #c3c3c3;
+    border: 2px solid #666;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 3px 3px 10px rgba(0,0,0,0.4);
+    z-index: 5;
+}
+.mini-player-header {
+    background: #0a64ad;
+    color: white;
+    font-size: 11px;
+    padding: 2px 6px;
+    font-weight: bold;
+}
+.mini-player-view {
+    flex: 1;
+    background: white;
+    margin: 4px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#miniPreviewCanvas {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #fff;
 }
 
-.previewPlayer canvas{
-    position:relative;
-    width:100%;
-    background:white;
-    border:1px solid #000;
+/* ===== TIMELINE PANEL ===== */
+.timeline-panel {
+    height: 145px;
+    background: #d4d0c8;
+    border-top: 3px solid #777;
+    display: flex;
+    flex-direction: column;
+    padding: 4px;
 }
 
+.timeline-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #999;
+    font-size: 12px;
+}
+
+.timeline-frames-outer {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    background: #9c9c9c;
+    border: 2px inset #fff;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    gap: 8px;
+}
+
+.frame-thumb-box {
+    width: 100px;
+    height: 75px;
+    background: #eee;
+    border: 2px solid #555;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.frame-thumb-box.active {
+    border: 3px solid #0a64ad;
+    box-shadow: 0 0 5px #0a64ad;
+}
+
+.frame-thumb-box canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    position: static;
+}
+
+.frame-number {
+    position: absolute;
+    bottom: 2px;
+    left: 2px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    font-size: 10px;
+    padding: 1px 3px;
+    border-radius: 2px;
+}
+
+.frame-actions-pop {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    display: none;
+    gap: 2px;
+}
+
+.frame-thumb-box:hover .frame-actions-pop {
+    display: flex;
+}
+
+.frame-pop-btn {
+    font-size: 9px;
+    padding: 1px 3px;
+    cursor: pointer;
+    background: #f0f0f0;
+    border: 1px solid #777;
+}
+
+/* ===== STATUS ===== */
 .status{
-    height:28px;
+    height:24px;
     background:#ddd;
-    border-top:2px solid #999;
+    border-top:2px solid #888;
     display:flex;
     align-items:center;
     padding:0 10px;
+    font-size:13px;
+    gap:12px;
+}
+
+button, select, input {
+    padding:3px 6px;
     font-size:12px;
+    background: #f3f3f3;
+    border: 1px solid #777;
+    border-radius: 3px;
+}
+button:active {
+    background: #ddd;
 }
 
-@media(max-width:850px){
-
-    .previewPlayer{
-        width:160px;
-    }
-
-    .toolbar{
-        width:72px;
-    }
-
+.layer-panel{
+    display:flex;
+    gap:3px;
+    align-items:center;
 }
 
+.layer-btn{
+    padding:3px 6px;
+    border:1px solid #555;
+    cursor:pointer;
+    background:#f3f3f3;
+}
+
+.layer-btn.active{
+    background:#0a64ad;
+    color:white;
+}
+
+.preset-container {
+    display: flex;
+    gap: 3px;
+}
+.preset-btn {
+    font-size: 11px;
+    cursor: pointer;
+}
+.preset-btn.active {
+    background: #0a64ad;
+    color: #fff;
+}
 </style>
 </head>
-
 <body>
 
-<div class="menu">
-    <div>File</div>
-    <div>Edit</div>
-    <div>Animation</div>
-    <div>View</div>
+<div class="menu-bar">
+    <div class="menu-item" id="menuNewAnim">New Project</div>
+    <div class="menu-item" id="menuExportGIF" style="color: #0078d7; font-weight: bold;">🎬 Export High-Q GIF</div>
+    <div class="menu-item" id="menuExportSequence">Export PNG Sequence</div>
+    <div class="menu-item" id="menuExportSprite">Export Sprite Sheet</div>
+    <strong style="margin-left:auto; font-size:12px; color:#555; padding-right:10px;">Retro Animation Studio v3.0 (gifshot Powered)</strong>
 </div>
 
 <div class="main">
 
-    <!-- ======================
-    TOOLS
-    ======================= -->
-
     <div class="toolbar">
-
-        <div class="tool active" data-tool="brush">✏️<br>Brush</div>
+        <div class="tool active" data-tool="pencil">✏️<br>Pencil</div>
         <div class="tool" data-tool="eraser">🧽<br>Eraser</div>
         <div class="tool" data-tool="line">／<br>Line</div>
         <div class="tool" data-tool="rect">▭<br>Rect</div>
@@ -306,770 +384,946 @@ PREVIEW PLAYER
         <div class="tool" data-tool="fill">🪣<br>Fill</div>
         <div class="tool" data-tool="text">T<br>Text</div>
         <div class="tool" data-tool="eyedropper">🎯<br>Pick</div>
-
+        <div class="tool" data-tool="cut">✂️<br>Cut</div>
     </div>
 
-    <!-- ======================
-    RIGHT
-    ======================= -->
+    <div class="right-area">
 
-    <div class="right">
-
-        <!-- ======================
-        TOPBAR
-        ======================= -->
-
-        <div class="topbar">
-
+        <div class="top-controls">
             <div class="palette" id="palette"></div>
+            <input type="color" id="colorPicker" value="#000000">
+            <div class="preview-color" id="previewColor"></div>
 
-            <input type="color" id="colorPicker">
-
-            <div class="preview" id="preview"></div>
-
-            Size
-            <input type="range" min="1" max="80" value="5" id="sizeSlider">
-
-            Opacity
-            <input type="range" min="0.1" max="1" step="0.1" value="1" id="opacity">
-
-            Brush Preset
-
-            <select id="preset">
-                <option value="pen">Pen</option>
-                <option value="pencil">Pencil</option>
-                <option value="airbrush">Airbrush</option>
-            </select>
-
-            FPS
-            <input type="number" id="fps" value="6" style="width:60px;">
-
-            <button id="playBtn">▶ Play</button>
-
-            <button id="addFrame">+ Frame</button>
-
-            <button id="copyFrame">Copy Frame</button>
-
-            <button id="interpolateBtn">Interpolation</button>
-
-            <button id="undoBtn">Undo</button>
-
-            <button id="redoBtn">Redo</button>
-
-            <label>
-                <input type="checkbox" id="onion">
-                Onion Skin
-            </label>
-
-        </div>
-
-        <!-- ======================
-        WORKSPACE
-        ======================= -->
-
-        <div class="workspace">
-
-            <div class="canvasWrap" id="canvasWrap"></div>
-
-            <!-- ======================
-            PREVIEW
-            ======================= -->
-
-            <div class="previewPlayer">
-
-                <div style="font-size:13px;margin-bottom:6px;">
-                    Animation Preview
+            <div style="border-left: 1px solid #999; padding-left: 5px;">
+                Preset:
+                <div class="preset-container">
+                    <button class="preset-btn active" id="presetPen">🖊️ Pen</button>
+                    <button class="preset-btn" id="presetPencil">✏️ Sketch</button>
+                    <button class="preset-btn" id="presetAirbrush">💨 Air</button>
                 </div>
-
-                <canvas id="previewCanvas" width="200" height="150"></canvas>
-
             </div>
 
+            Size:
+            <input type="range" min="1" max="80" value="5" id="brushSize" style="width:70px;">
+            <input type="number" min="1" max="80" value="5" id="brushNumber" style="width:45px;">
+
+            Opacity:
+            <input type="range" min="0.1" max="1" step="0.05" value="1" id="opacity" style="width:60px;">
+
+            <select id="brushShape" style="width:75px;">
+                <option value="round">Round</option>
+                <option value="square">Square</option>
+            </select>
+
+            <select id="lineStyle" style="width:70px;">
+                <option value="solid">Solid</option>
+                <option value="dotted">Dotted</option>
+            </select>
+
+            <label style="display:flex; align-items:center; gap:2px;">
+                <input type="checkbox" id="fillShape"> Fill
+            </label>
+
+            <button id="toggleGrid">Grid</button>
+            <button id="toggleLightbox" style="background:#e0d0f0;">💡 Lightbox</button>
+            <button id="rotateBtn">🔄 90°</button>
+            <button id="clearBtn" style="background:#fcc;">Clear Frame</button>
+
+            <button id="undoBtn" style="font-weight:bold;">↩️ Undo</button>
+            <button id="redoBtn" style="font-weight:bold;">↪️ Redo</button>
+
+            W:<input type="number" id="canvasW" value="500" style="width:45px;">
+            H:<input type="number" id="canvasH" value="380" style="width:45px;">
+            <button id="resizeCanvas">Resize</button>
+
+            <span style="border-left:1px solid #aaa; margin:0 2px;"></span>
+            <button id="btnCopyLayer" style="background:#d0e0f0;" title="Copy active layer to another frame">📋 Copy Layer</button>
+
+            <div class="layer-panel" style="margin-left:5px; border-left:2px solid #666; padding-left:8px;">
+                <span>Layer:</span>
+                <div id="layerPanel"></div>
+            </div>
         </div>
 
-        <!-- ======================
-        TIMELINE
-        ======================= -->
+        <div class="workspace-container">
+            <div class="canvas-wrap">
+                <div class="canvas-container" id="canvasContainer">
+                    <div id="onionSkinBackendContainer"></div>
+                    
+                    <div id="activeLayersContainer">
+                        <canvas id="layer0"></canvas>
+                        <canvas id="layer1"></canvas>
+                        <canvas id="layer2"></canvas>
+                        <canvas id="layer3"></canvas>
+                        <canvas id="layer4"></canvas>
+                    </div>
 
-        <div class="timeline" id="timeline"></div>
+                    <div id="onionSkinFrontendContainer"></div>
+                    <canvas id="interpolationCanvas"></canvas>
+                    <canvas id="gridCanvas"></canvas>
+                    <div id="selectionBox"></div>
+                </div>
+            </div>
 
-        <div class="status" id="status">
-            Ready
+            <div class="mini-player-window">
+                <div class="mini-player-header">⏱️ Realtime Preview</div>
+                <div class="mini-player-view">
+                    <canvas id="miniPreviewCanvas"></canvas>
+                </div>
+            </div>
         </div>
 
+        <div class="timeline-panel">
+            <div class="timeline-controls">
+                <button id="btnPlay" style="background:#8f8; font-weight:bold; padding:3px 12px;">▶ Play</button>
+                <button id="btnStop" style="background:#f88; font-weight:bold;">⏹ Stop</button>
+                
+                <label style="display:flex; align-items:center; gap:4px;">
+                    <input type="checkbox" id="chkLoop" checked> Loop
+                </label>
+
+                <span style="border-left:1px solid #999; height:16px;"></span>
+                FPS: 
+                <input type="range" min="1" max="24" value="8" id="animFPS" style="width:90px;">
+                <span id="txtFPS" style="font-weight:bold; width:25px; display:inline-block;">8</span>
+
+                <span style="border-left:1px solid #999; height:16px;"></span>
+                <button id="btnAddFrame" style="background:#fff200; font-weight:bold;">➕ Add Frame</button>
+                <button id="btnClearAllFrames" style="background:#ffaaaa; font-size:11px;">Clear All</button>
+
+                <span style="border-left:2px solid #777; height:16px; margin-left:10px;"></span>
+                <span style="font-size:11px; font-weight:bold; color:#333;">Onion:</span>
+                <select id="onionCount" style="width:40px; padding:1px;">
+                    <option value="1" selected>1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                </select>
+                Opacity: 
+                <input type="range" min="0.1" max="0.8" step="0.05" value="0.35" id="onionOpacityRange" style="width:50px;">
+
+                <label style="margin-left:5px; font-size:11px; display:flex; align-items:center; gap:2px;">
+                    <input type="checkbox" id="chkInterpolationGuide" checked> Guide
+                </label>
+
+                <div style="margin-left:auto; font-weight:bold; padding-right:5px;" id="frameCounterDisplay">Frame: 1 / 1</div>
+            </div>
+
+            <div class="timeline-frames-outer" id="timelineFramesTracks"></div>
+        </div>
+
+        <div class="status" id="status">Ready</div>
     </div>
-
 </div>
 
 <script>
+/**
+ * CORE STORAGE & STATE MATRIX
+ */
+let WIDTH = 500;
+let HEIGHT = 380;
+const LAYER_COUNT = 5;
 
-/* ======================================================
-SETUP
-====================================================== */
-
-const WIDTH = 800;
-const HEIGHT = 600;
-
-const MAX_LAYERS = 5;
-
-const canvasWrap = document.getElementById("canvasWrap");
-
-canvasWrap.style.width = WIDTH + "px";
-canvasWrap.style.height = HEIGHT + "px";
-
-/* ======================================================
-STATE
-====================================================== */
-
-let currentTool = "brush";
-let currentColor = "#000000";
-let brushSize = 5;
-let opacity = 1;
-
+let animationFrames = [];
+let currentFrameIndex = 0;
+let currentLayer = 0;
+let currentTool = "pencil";
 let drawing = false;
 
-let startX = 0;
-let startY = 0;
+let activePreset = "pen"; 
+let lastX = 0, lastY = 0;
+let startX = 0, startY = 0;
+let lastTime = 0;
 
-let currentFrame = 0;
+let color = "#000000";
+let brushSize = 5;
+let opacity = 1;
+let gridVisible = false;
+let lightboxMode = false;
+let interpolationGuide = true;
 
-let pressureSimulation = true;
+let onionSkinCount = 1;
+let onionSkinMaxOpacity = 0.35;
 
-let lastMoveTime = performance.now();
+// GLOBAL HISTORY UNIFIED TIMELINE POINTERS
+let globalHistoryStack = [];
+let globalHistoryPointer = -1;
+const MAX_HISTORY_LIMIT = 30;
 
-let history = [];
-let redoHistory = [];
+let isPlaying = false;
+let playbackIntervalId = null;
+let fps = 8;
+let draggedFrameIndex = null;
+let selection = null;
 
-/* ======================================================
-FRAMES
-====================================================== */
+/* DOM Mappings */
+const container = document.getElementById("canvasContainer");
+const gridCanvas = document.getElementById("gridCanvas");
+const gridCtx = gridCanvas.getContext("2d");
+const interpolationCanvas = document.getElementById("interpolationCanvas");
+const interCtx = interpolationCanvas.getContext("2d");
+const miniPreviewCanvas = document.getElementById("miniPreviewCanvas");
+const miniPreviewCtx = miniPreviewCanvas.getContext("2d");
 
-const frames = [];
-
-function createFrame(){
-
-    const frame = {
-        layers: [],
-        contexts: []
-    };
-
-    for(let i=0;i<MAX_LAYERS;i++){
-
-        const c = document.createElement("canvas");
-
-        c.width = WIDTH;
-        c.height = HEIGHT;
-
-        c.style.zIndex = i;
-
-        const ctx = c.getContext("2d");
-
-        frame.layers.push(c);
-        frame.contexts.push(ctx);
-
-    }
-
-    frames.push(frame);
-
+const uiLayers = [];
+const uiContexts = [];
+for(let i=0; i<LAYER_COUNT; i++) {
+    const c = document.getElementById("layer"+i);
+    uiLayers.push(c);
+    uiContexts.push(c.getContext("2d"));
 }
 
-createFrame();
+/* =========================================================
+   INITIALIZATION PIPELINES
+========================================================= */
+function initWorkspace() {
+    resizeCanvasLayout(WIDTH, HEIGHT);
+    createNewProject();
+    generateColorPalette();
+    generateLayerPanelUI();
+    startMiniPlayerDaemon();
+    captureGlobalSystemHistory();
+}
 
-/* ======================================================
-SHOW FRAME
-====================================================== */
+function createNewProject() {
+    animationFrames = [];
+    currentFrameIndex = 0;
+    currentLayer = 0;
+    animationFrames.push(generateBlankFrameTemplate());
+    loadFrameToWorkspace(0);
+    renderTimelineFrames();
+}
 
-function renderFrame(){
+function generateBlankFrameTemplate() {
+    const blankLayers = [];
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = WIDTH; tempCanvas.height = HEIGHT;
+    const dataUrl = tempCanvas.toDataURL();
+    for(let i=0; i<LAYER_COUNT; i++) {
+        blankLayers.push(dataUrl);
+    }
+    return { layers: blankLayers };
+}
 
-    canvasWrap.innerHTML = "";
+function resizeCanvasLayout(w, h) {
+    WIDTH = w; HEIGHT = h;
+    container.style.width = WIDTH + "px";
+    container.style.height = HEIGHT + "px";
+    uiLayers.forEach(canvas => { canvas.width = WIDTH; canvas.height = HEIGHT; });
+    gridCanvas.width = WIDTH; gridCanvas.height = HEIGHT;
+    interpolationCanvas.width = WIDTH; interpolationCanvas.height = HEIGHT;
+    miniPreviewCanvas.width = WIDTH; miniPreviewCanvas.height = HEIGHT;
+    drawGridOverlay();
+}
 
-    const frame = frames[currentFrame];
-
-    frame.layers.forEach(c=>{
-        canvasWrap.appendChild(c);
+/* =========================================================
+   UNIFIED HISTORY KERNEL (WHOLE TIMELINE UNDO/REDO)
+========================================================= */
+function captureGlobalSystemHistory() {
+    const frameSnapshot = [];
+    animationFrames.forEach(f => {
+        frameSnapshot.push({ layers: [...f.layers] });
     });
-
-    updateTimeline();
-
-    if(document.getElementById("onion").checked){
-
-        renderOnionSkin();
-
-    }
-
-}
-
-renderFrame();
-
-/* ======================================================
-ONION SKIN
-====================================================== */
-
-function renderOnionSkin(){
-
-    if(currentFrame <= 0) return;
-
-    const prev = mergeFrame(currentFrame-1);
-
-    prev.style.opacity = 0.2;
-
-    prev.style.pointerEvents = "none";
-
-    canvasWrap.insertBefore(prev,canvasWrap.firstChild);
-
-}
-
-/* ======================================================
-MERGE FRAME
-====================================================== */
-
-function mergeFrame(index){
-
-    const temp = document.createElement("canvas");
-
-    temp.width = WIDTH;
-    temp.height = HEIGHT;
-
-    const t = temp.getContext("2d");
-
-    t.fillStyle = "white";
-    t.fillRect(0,0,WIDTH,HEIGHT);
-
-    frames[index].layers.forEach(l=>{
-        t.drawImage(l,0,0);
-    });
-
-    return temp;
-
-}
-
-/* ======================================================
-TIMELINE
-====================================================== */
-
-function updateTimeline(){
-
-    const tl = document.getElementById("timeline");
-
-    tl.innerHTML = "";
-
-    frames.forEach((f,index)=>{
-
-        const div = document.createElement("div");
-
-        div.className = "frame";
-
-        if(index === currentFrame){
-            div.classList.add("active");
-        }
-
-        const mini = mergeFrame(index);
-
-        mini.width = 90;
-        mini.height = 80;
-
-        div.appendChild(mini);
-
-        div.onclick = ()=>{
-
-            currentFrame = index;
-
-            renderFrame();
-
-        };
-
-        tl.appendChild(div);
-
-    });
-
-}
-
-updateTimeline();
-
-/* ======================================================
-PALETTE
-====================================================== */
-
-const colors = [
-"#000","#777","#880015","#ed1c24",
-"#ff7f27","#fff200","#22b14c","#00a2e8",
-"#3f48cc","#a349a4","#fff","#c3c3c3",
-"#b97a57","#ffaec9","#b5e61d","#99d9ea"
-];
-
-const palette = document.getElementById("palette");
-
-colors.forEach(c=>{
-
-    const d = document.createElement("div");
-
-    d.className = "color";
-
-    d.style.background = c;
-
-    d.onclick = ()=>{
-
-        currentColor = c;
-
-        updatePreview();
-
-    };
-
-    palette.appendChild(d);
-
-});
-
-function updatePreview(){
-
-    document.getElementById("preview").style.background = currentColor;
-
-}
-
-updatePreview();
-
-/* ======================================================
-TOOLS
-====================================================== */
-
-document.querySelectorAll(".tool").forEach(t=>{
-
-    t.onclick = ()=>{
-
-        document.querySelectorAll(".tool")
-        .forEach(a=>a.classList.remove("active"));
-
-        t.classList.add("active");
-
-        currentTool = t.dataset.tool;
-
-    };
-
-});
-
-/* ======================================================
-INPUTS
-====================================================== */
-
-document.getElementById("colorPicker").oninput = e=>{
-    currentColor = e.target.value;
-    updatePreview();
-};
-
-document.getElementById("sizeSlider").oninput = e=>{
-    brushSize = parseInt(e.target.value);
-};
-
-document.getElementById("opacity").oninput = e=>{
-    opacity = parseFloat(e.target.value);
-};
-
-/* ======================================================
-GLOBAL HISTORY
-====================================================== */
-
-function saveHistory(){
-
-    const snapshot = [];
-
-    frames.forEach(frame=>{
-
-        const frameData = [];
-
-        frame.layers.forEach(l=>{
-            frameData.push(l.toDataURL());
-        });
-
-        snapshot.push(frameData);
-
-    });
-
-    history.push(snapshot);
-
-    if(history.length > 80){
-        history.shift();
-    }
-
-}
-
-saveHistory();
-
-function restore(snapshot){
-
-    snapshot.forEach((frameData,fi)=>{
-
-        frameData.forEach((src,li)=>{
-
-            const img = new Image();
-
-            img.onload = ()=>{
-
-                const ctx = frames[fi].contexts[li];
-
-                ctx.clearRect(0,0,WIDTH,HEIGHT);
-
-                ctx.drawImage(img,0,0);
-
-            };
-
-            img.src = src;
-
-        });
-
-    });
-
-}
-
-document.getElementById("undoBtn").onclick = ()=>{
-
-    if(history.length < 2) return;
-
-    const current = history.pop();
-
-    redoHistory.push(current);
-
-    restore(history[history.length-1]);
-
-};
-
-document.getElementById("redoBtn").onclick = ()=>{
-
-    if(redoHistory.length < 1) return;
-
-    const state = redoHistory.pop();
-
-    history.push(state);
-
-    restore(state);
-
-};
-
-/* ======================================================
-DRAW EVENTS
-====================================================== */
-
-function addCanvasEvents(c){
-
-    c.addEventListener("mousedown",startDraw);
-    c.addEventListener("touchstart",startDraw);
-
-    c.addEventListener("mousemove",draw);
-    c.addEventListener("touchmove",draw);
-
-    c.addEventListener("mouseup",endDraw);
-    c.addEventListener("mouseleave",endDraw);
-    c.addEventListener("touchend",endDraw);
-
-}
-
-frames[0].layers.forEach(addCanvasEvents);
-
-/* ======================================================
-POSITION
-====================================================== */
-
-function getPos(e){
-
-    const rect = canvasWrap.getBoundingClientRect();
-
-    let x,y;
-
-    if(e.touches){
-
-        x = e.touches[0].clientX - rect.left;
-        y = e.touches[0].clientY - rect.top;
-
-    }else{
-
-        x = e.clientX - rect.left;
-        y = e.clientY - rect.top;
-
-    }
-
-    return {x,y};
-
-}
-
-/* ======================================================
-DRAW
-====================================================== */
-
-function startDraw(e){
-
-    e.preventDefault();
-
-    drawing = true;
-
-    const p = getPos(e);
-
-    startX = p.x;
-    startY = p.y;
-
-    const ctx = frames[currentFrame].contexts[0];
-
-    ctx.beginPath();
-    ctx.moveTo(startX,startY);
-
-}
-
-function draw(e){
-
-    if(!drawing) return;
-
-    const p = getPos(e);
-
-    const x = p.x;
-    const y = p.y;
-
-    const ctx = frames[currentFrame].contexts[0];
-
-    const now = performance.now();
-
-    const speed = Math.hypot(x-startX,y-startY)/(now-lastMoveTime+1);
-
-    lastMoveTime = now;
-
-    let dynamicSize = brushSize;
-
-    /* ==========================================
-    PRESSURE SIMULATION
-    Faster = thinner
-    Slower = thicker
-    ========================================== */
-
-    if(pressureSimulation){
-
-        dynamicSize = Math.max(
-            1,
-            brushSize * (2-speed)
-        );
-
-    }
-
-    ctx.globalAlpha = opacity;
-
-    ctx.strokeStyle = currentColor;
-
-    ctx.fillStyle = currentColor;
-
-    const preset = document.getElementById("preset").value;
-
-    /* ==========================================
-    PRESETS
-    ========================================== */
-
-    if(preset === "pen"){
-
-        ctx.lineWidth = dynamicSize;
-        ctx.globalAlpha = opacity;
-
-    }
-
-    if(preset === "pencil"){
-
-        ctx.lineWidth = dynamicSize * 0.8;
-        ctx.globalAlpha = opacity * 0.5;
-
-    }
-
-    if(preset === "airbrush"){
-
-        ctx.lineWidth = dynamicSize * 2;
-        ctx.globalAlpha = opacity * 0.1;
-
-    }
-
-    if(currentTool === "brush"){
-
-        ctx.lineCap = "round";
-
-        ctx.lineTo(x,y);
-
-        ctx.stroke();
-
-    }
-
-    if(currentTool === "eraser"){
-
-        ctx.save();
-
-        ctx.globalCompositeOperation = "destination-out";
-
-        ctx.beginPath();
-
-        ctx.arc(x,y,dynamicSize,0,Math.PI*2);
-
-        ctx.fill();
-
-        ctx.restore();
-
-    }
-
-    startX = x;
-    startY = y;
-
-}
-
-function endDraw(){
-
-    if(!drawing) return;
-
-    drawing = false;
-
-    saveHistory();
-
-    updateTimeline();
-
-}
-
-/* ======================================================
-ADD FRAME
-====================================================== */
-
-document.getElementById("addFrame").onclick = ()=>{
-
-    createFrame();
-
-    frames[frames.length-1].layers.forEach(addCanvasEvents);
-
-    updateTimeline();
-
-};
-
-/* ======================================================
-COPY FRAME
-====================================================== */
-
-document.getElementById("copyFrame").onclick = ()=>{
-
-    const target = parseInt(
-        prompt("Copy current frame to which frame number?")
-    );
-
-    if(isNaN(target)) return;
-
-    if(target < 0 || target >= frames.length) return;
-
-    frames[currentFrame].layers.forEach((layer,i)=>{
-
-        frames[target].contexts[i]
-        .drawImage(layer,0,0);
-
-    });
-
-    updateTimeline();
-
-    saveHistory();
-
-};
-
-/* ======================================================
-INTERPOLATION ASSIST
-====================================================== */
-
-document.getElementById("interpolateBtn").onclick = ()=>{
-
-    if(currentFrame >= frames.length-1){
-        alert("Need next frame.");
-        return;
-    }
-
-    const current = mergeFrame(currentFrame);
-
-    const next = mergeFrame(currentFrame+1);
-
-    const midIndex = currentFrame + 1;
-
-    createFrame();
-
-    frames.splice(midIndex,0,frames.pop());
-
-    const ctx = frames[midIndex].contexts[0];
-
-    ctx.globalAlpha = 0.5;
-
-    ctx.drawImage(current,0,0);
-
-    ctx.drawImage(next,0,0);
-
-    updateTimeline();
-
-    saveHistory();
-
-};
-
-/* ======================================================
-ANIMATION PREVIEW
-====================================================== */
-
-let playing = false;
-let previewIndex = 0;
-
-const previewCanvas = document.getElementById("previewCanvas");
-const previewCtx = previewCanvas.getContext("2d");
-
-document.getElementById("playBtn").onclick = ()=>{
-
-    playing = !playing;
-
-    document.getElementById("playBtn").innerText =
-        playing ? "■ Stop" : "▶ Play";
-
-};
-
-setInterval(()=>{
-
-    if(!playing) return;
-
-    previewCtx.clearRect(
-        0,0,
-        previewCanvas.width,
-        previewCanvas.height
-    );
-
-    const merged = mergeFrame(previewIndex);
-
-    previewCtx.drawImage(
-        merged,
-        0,
-        0,
-        previewCanvas.width,
-        previewCanvas.height
-    );
-
-    previewIndex++;
-
-    if(previewIndex >= frames.length){
-        previewIndex = 0;
-    }
-
-},1000/6);
-
-/* ======================================================
-FPS
-====================================================== */
-
-document.getElementById("fps").oninput = ()=>{
-
-    // dynamic FPS can be extended later
-
-};
-
-/* ======================================================
-STATUS
-====================================================== */
-
-setInterval(()=>{
-
-    document.getElementById("status").innerText =
-        `Frame: ${currentFrame+1}/${frames.length} | Tool: ${currentTool} | Brush: ${brushSize}px`;
-
-},100);
-
-</script>
-
-</body>
-</html>
     
-  </body>
-  
+    const statePayload = {
+        frames: frameSnapshot,
+        activeFrame: currentFrameIndex,
+        activeLayer: currentLayer
+    };
+    
+    if (globalHistoryPointer < globalHistoryStack.length - 1) {
+        globalHistoryStack = globalHistoryStack.slice(0, globalHistoryPointer + 1);
+    }
+    
+    globalHistoryStack.push(statePayload);
+    if(globalHistoryStack.length > MAX_HISTORY_LIMIT) {
+        globalHistoryStack.shift();
+    }
+    globalHistoryPointer = globalHistoryStack.length - 1;
+}
+
+function executeHistoryUndo() {
+    if (globalHistoryPointer > 0) {
+        globalHistoryPointer--;
+        restoreSystemFromHistoryState(globalHistoryStack[globalHistoryPointer]);
+    }
+}
+
+function executeHistoryRedo() {
+    if (globalHistoryPointer < globalHistoryStack.length - 1) {
+        globalHistoryPointer++;
+        restoreSystemFromHistoryState(globalHistoryStack[globalHistoryPointer]);
+    }
+}
+
+function restoreSystemFromHistoryState(snapshot) {
+    if(!snapshot) return;
+    currentFrameIndex = snapshot.activeFrame;
+    currentLayer = snapshot.activeLayer;
+    
+    animationFrames = [];
+    snapshot.frames.forEach(f => {
+        animationFrames.push({ layers: [...f.layers] });
+    });
+    
+    loadFrameToWorkspace(currentFrameIndex);
+    updateLayerSelectionHighlight();
+    renderTimelineFrames();
+}
+
+/* =========================================================
+   WORKSPACE BUFFER MERGING & TRANSFER
+========================================================= */
+function saveActiveWorkspaceToMemory() {
+    if(!animationFrames[currentFrameIndex]) return;
+    for(let i=0; i<LAYER_COUNT; i++) {
+        animationFrames[currentFrameIndex].layers[i] = uiLayers[i].toDataURL();
+    }
+}
+
+function loadFrameToWorkspace(frameIdx) {
+    if(frameIdx < 0 || frameIdx >= animationFrames.length) return;
+    currentFrameIndex = frameIdx;
+    const frameData = animationFrames[currentFrameIndex];
+    
+    let loadedCount = 0;
+    for(let i=0; i<LAYER_COUNT; i++) {
+        const ctx = uiContexts[i];
+        ctx.clearRect(0, 0, WIDTH, HEIGHT);
+        const img = new Image();
+        img.onload = () => {
+            ctx.drawImage(img, 0, 0);
+            loadedCount++;
+            if(loadedCount === LAYER_COUNT) {
+                renderOnionSkinOverlays();
+                drawInterpolationGuides();
+            }
+        };
+        img.src = frameData.layers[i];
+    }
+    updateFrameCountLabel();
+}
+
+/* =========================================================
+   ONION SKIN & INTERPOLATION ENGINE
+========================================================= */
+function renderOnionSkinOverlays() {
+    const backendContainer = document.getElementById("onionSkinBackendContainer");
+    const frontendContainer = document.getElementById("onionSkinFrontendContainer");
+    backendContainer.innerHTML = ""; frontendContainer.innerHTML = "";
+    
+    if(isPlaying) return;
+    
+    const prevFramesRange = [];
+    for(let i = onionSkinCount; i > 0; i--) {
+        if(currentFrameIndex - i >= 0) prevFramesRange.push(currentFrameIndex - i);
+    }
+    const nextFramesRange = [];
+    for(let i = 1; i <= onionSkinCount; i++) {
+        if(currentFrameIndex + i < animationFrames.length) nextFramesRange.push(currentFrameIndex + i);
+    }
+    
+    prevFramesRange.forEach((fIdx, index) => {
+        const factor = (index + 1) / prevFramesRange.length;
+        const canvasElement = compileMergedFrameCanvas(fIdx, `rgba(237, 28, 36, ${factor * onionSkinMaxOpacity})`);
+        canvasElement.className = "onion-prev";
+        backendContainer.appendChild(canvasElement);
+    });
+
+    nextFramesRange.forEach((fIdx, index) => {
+        const factor = 1 - (index / nextFramesRange.length);
+        const canvasElement = compileMergedFrameCanvas(fIdx, `rgba(34, 177, 76, ${factor * onionSkinMaxOpacity})`);
+        canvasElement.className = "onion-next";
+        frontendContainer.appendChild(canvasElement);
+    });
+}
+
+function compileMergedFrameCanvas(frameIdx, blendColorString) {
+    const outputCanvas = document.createElement("canvas");
+    outputCanvas.width = WIDTH; outputCanvas.height = HEIGHT;
+    const ctx = outputCanvas.getContext("2d");
+    
+    const targetFrame = animationFrames[frameIdx];
+    if(targetFrame) {
+        targetFrame.layers.forEach(layerDataUrl => {
+            const img = new Image();
+            img.src = layerDataUrl;
+            if(img.complete) ctx.drawImage(img, 0, 0);
+        });
+    }
+    ctx.globalCompositeOperation = "source-in";
+    ctx.fillStyle = blendColorString;
+    ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    return outputCanvas;
+}
+
+function drawInterpolationGuides() {
+    interCtx.clearRect(0, 0, WIDTH, HEIGHT);
+    if (!interpolationGuide || animationFrames.length < 2 || isPlaying) return;
+    
+    interCtx.save();
+    interCtx.strokeStyle = "rgba(10, 100, 173, 0.35)";
+    interCtx.lineWidth = 1;
+    interCtx.setLineDash([4, 4]);
+    
+    interCtx.beginPath();
+    interCtx.moveTo(WIDTH / 2, 0); interCtx.lineTo(WIDTH / 2, HEIGHT);
+    interCtx.moveTo(0, HEIGHT / 2); interCtx.lineTo(WIDTH, HEIGHT / 2);
+    interCtx.stroke();
+    interCtx.restore();
+}
+
+/* =========================================================
+   VELOCITY-BASED PRESSURE SENSITIVITY SYSTEM
+========================================================= */
+function resolveBrushProfileStyle() {
+    const ctx = uiContexts[currentLayer];
+    ctx.fillStyle = color; ctx.strokeStyle = color;
+    ctx.globalAlpha = opacity;
+    ctx.lineCap = document.getElementById("brushShape").value === "square" ? "square" : "round";
+    ctx.lineJoin = "round";
+    ctx.setLineDash(document.getElementById("lineStyle").value === "dotted" ? [6, 8] : []);
+}
+
+function computeVelocityPressureWeight(dx, dy, dt) {
+    if(activePreset !== "pencil" && activePreset !== "airbrush") return brushSize;
+    
+    const distance = Math.hypot(dx, dy);
+    const speed = dt > 0 ? distance / dt : 0;
+    
+    let weightFactor = 1.4 - (speed / 3.5);
+    if(weightFactor < 0.2) weightFactor = 0.2;
+    if(weightFactor > 1.8) weightFactor = 1.8;
+    
+    return brushSize * weightFactor;
+}
+
+/* =========================================================
+   POINTER INTERFACES
+========================================================= */
+function getEventCoordinates(e) {
+    const rect = container.getBoundingClientRect();
+    let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: clientX - rect.left, y: clientY - rect.top };
+}
+
+uiLayers.forEach(layerCanvas => {
+    layerCanvas.addEventListener("mousedown", handlePointerStart);
+    layerCanvas.addEventListener("touchstart", handlePointerStart, {passive: false});
+    layerCanvas.addEventListener("mousemove", handlePointerDraw);
+    layerCanvas.addEventListener("touchmove", handlePointerDraw, {passive: false});
+    layerCanvas.addEventListener("mouseup", handlePointerEnd);
+    layerCanvas.addEventListener("mouseleave", handlePointerEnd);
+    layerCanvas.addEventListener("touchend", handlePointerEnd);
+});
+
+function handlePointerStart(e) {
+    if(isPlaying) return;
+    e.preventDefault();
+    
+    drawing = true;
+    const coords = getEventCoordinates(e);
+    startX = coords.x; startY = coords.y;
+    lastX = coords.x; lastY = coords.y;
+    lastTime = Date.now();
+    
+    const ctx = uiContexts[currentLayer];
+    resolveBrushProfileStyle();
+    
+    if(currentTool === "pencil") {
+        if(activePreset === "airbrush") {
+            executeAirbrushSprinkle(ctx, coords.x, coords.y, brushSize);
+        } else {
+            ctx.beginPath();
+            ctx.arc(coords.x, coords.y, brushSize / 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    } else if(currentTool === "eraser") {
+        executeEraserStroke(ctx, coords.x, coords.y);
+    } else if(currentTool === "fill") {
+        executeFloodFillRoutine(Math.floor(coords.x), Math.floor(coords.y), color);
+        saveActiveWorkspaceToMemory(); captureGlobalSystemHistory();
+    } else if(currentTool === "eyedropper") {
+        executeEyedropperPick(coords.x, coords.y);
+    } else if(currentTool === "text") {
+        executeTextPlacementPrompt(coords.x, coords.y);
+    }
+}
+
+function handlePointerDraw(e) {
+    if(!drawing || isPlaying) return;
+    e.preventDefault();
+    
+    const coords = getEventCoordinates(e);
+    const ctx = uiContexts[currentLayer];
+    
+    const dx = coords.x - lastX;
+    const dy = coords.y - lastY;
+    const now = Date.now();
+    const dt = now - lastTime;
+    
+    if(currentTool === "pencil") {
+        if(activePreset === "airbrush") {
+            executeAirbrushSprinkle(ctx, coords.x, coords.y, brushSize);
+        } else {
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineWidth = computeVelocityPressureWeight(dx, dy, dt);
+            if(activePreset === "pencil") ctx.strokeStyle = convertHexToRgbString(color, 0.45);
+            ctx.lineTo(coords.x, coords.y);
+            ctx.stroke();
+        }
+    } else if(currentTool === "eraser") {
+        executeEraserStroke(ctx, coords.x, coords.y);
+    }
+    
+    lastX = coords.x; lastY = coords.y; lastTime = now;
+    saveActiveWorkspaceToMemory();
+}
+
+function handlePointerEnd(e) {
+    if(!drawing) return;
+    drawing = false;
+    
+    const coords = getEventCoordinates(e);
+    const ctx = uiContexts[currentLayer];
+    resolveBrushProfileStyle();
+    const isFilled = document.getElementById("fillShape").checked;
+    
+    if(currentTool === "line") {
+        ctx.beginPath(); ctx.moveTo(startX, startY); ctx.lineTo(coords.x, coords.y); ctx.stroke();
+    } else if(currentTool === "rect") {
+        const w = coords.x - startX; const h = coords.y - startY;
+        if(isFilled) { ctx.fillRect(startX, startY, w, h); } else { ctx.strokeRect(startX, startY, w, h); }
+    } else if(currentTool === "circle") {
+        const radius = Math.hypot(coords.x - startX, coords.y - startY);
+        ctx.beginPath(); ctx.arc(startX, startY, radius, 0, Math.PI * 2);
+        if(isFilled) ctx.fill(); else ctx.stroke();
+    } else if(currentTool === "cut") {
+        executeCutSelectionBoxRoutine(coords.x, coords.y);
+    }
+    
+    saveActiveWorkspaceToMemory();
+    captureGlobalSystemHistory();
+    renderTimelineFrames();
+}
+
+/* DRAWING TOOLS ENGINE SUITE */
+function executeEraserStroke(ctx, x, y) {
+    ctx.save(); ctx.globalCompositeOperation = "destination-out";
+    ctx.beginPath(); ctx.arc(x, y, brushSize, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+}
+function executeAirbrushSprinkle(ctx, x, y, radius) {
+    ctx.save();
+    for (let i = 0; i < 35; i++) {
+        const angle = Math.random() * Math.PI * 2; const r = Math.random() * radius;
+        ctx.fillStyle = convertHexToRgbString(color, 0.22);
+        ctx.fillRect(x + Math.cos(angle) * r, y + Math.sin(angle) * r, 1, 1);
+    }
+    ctx.restore();
+}
+function convertHexToRgbString(hexVal, alpha) {
+    const num = parseInt(hexVal.replace("#", ""), 16);
+    return `rgba(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}, ${alpha})`;
+}
+function executeEyedropperPick(x, y) {
+    const data = uiContexts[currentLayer].getImageData(x, y, 1, 1).data;
+    if(data[3] > 0) {
+        color = "#" + ((1 << 24) + (data[0] << 16) + (data[1] << 8) + data[2]).toString(16).slice(1);
+        document.getElementById("colorPicker").value = color; updateColorPreviewIndicator();
+    }
+}
+function executeTextPlacementPrompt(x, y) {
+    const txt = prompt("Enter Text:");
+    if(txt) {
+        const ctx = uiContexts[currentLayer]; ctx.fillStyle = color;
+        ctx.font = (brushSize * 3 + 12) + "px sans-serif"; ctx.fillText(txt, x, y);
+        saveActiveWorkspaceToMemory(); captureGlobalSystemHistory(); renderTimelineFrames();
+    }
+}
+function executeCutSelectionBoxRoutine(endX, endY) {
+    selection = { x: startX, y: startY, w: endX - startX, h: endY - startY };
+    const sBox = document.getElementById("selectionBox");
+    sBox.style.display = "block";
+    sBox.style.left = selection.x + "px"; sBox.style.top = selection.y + "px";
+    sBox.style.width = selection.w + "px"; sBox.style.height = selection.h + "px";
+    setTimeout(() => { sBox.style.display = "none"; }, 1200);
+    
+    const ctx = uiContexts[currentLayer];
+    const imgData = ctx.getImageData(selection.x, selection.y, selection.w, selection.h);
+    ctx.clearRect(selection.x, selection.y, selection.w, selection.h);
+    ctx.putImageData(imgData, selection.x + 20, selection.y + 20);
+}
+function executeFloodFillRoutine(startX, startY, fillHexColor) {
+    const ctx = uiContexts[currentLayer];
+    const imgData = ctx.getImageData(0, 0, WIDTH, HEIGHT); const data = imgData.data;
+    const targetNum = parseInt(fillHexColor.replace("#", ""), 16);
+    const fillRgba = [ (targetNum >> 16) & 255, (targetNum >> 8) & 255, targetNum & 255, 255 ];
+    const rootIdx = (startY * WIDTH + startX) * 4;
+    const targetRgba = [ data[rootIdx], data[rootIdx+1], data[rootIdx+2], data[rootIdx+3] ];
+    
+    if(JSON.stringify(targetRgba) === JSON.stringify(fillRgba)) return;
+    const queue = [[startX, startY]];
+    while(queue.length > 0) {
+        const cur = queue.pop(); const cx = cur[0]; const cy = cur[1];
+        if(cx < 0 || cy < 0 || cx >= WIDTH || cy >= HEIGHT) continue;
+        const i = (cy * WIDTH + cx) * 4;
+        if(data[i] === targetRgba[0] && data[i+1] === targetRgba[1] && data[i+2] === targetRgba[2] && data[i+3] === targetRgba[3]) {
+            data[i] = fillRgba[0]; data[i+1] = fillRgba[1]; data[i+2] = fillRgba[2]; data[i+3] = 255;
+            queue.push([cx + 1, cy], [cx - 1, cy], [cx, cy + 1], [cx, cy - 1]);
+        }
+    }
+    ctx.putImageData(imgData, 0, 0);
+}
+
+/* =========================================================
+   INTER-FRAME LAYER COPY ENGINE
+========================================================= */
+function copyActiveLayerToTargetFrame() {
+    const targetInput = prompt(`Copy Layer ${currentLayer+1} to frame index number? (1 to ${animationFrames.length})`);
+    const targetIdx = parseInt(targetInput) - 1;
+    if(isNaN(targetIdx) || targetIdx < 0 || targetIdx >= animationFrames.length) {
+        alert("Out of range frame bounds allocation parsed."); return;
+    }
+    saveActiveWorkspaceToMemory();
+    animationFrames[targetIdx].layers[currentLayer] = animationFrames[currentFrameIndex].layers[currentLayer];
+    captureGlobalSystemHistory();
+    alert(`Layer ${currentLayer+1} successfully injected into Frame ${targetIdx+1}.`);
+    renderTimelineFrames();
+}
+
+/* =========================================================
+   TIMELINE DYNAMIC TRACK RENDERING SYSTEM
+========================================================= */
+function renderTimelineFrames() {
+    const trackContainer = document.getElementById("timelineFramesTracks");
+    trackContainer.innerHTML = "";
+    
+    animationFrames.forEach((frameObj, idx) => {
+        const thumbWrapper = document.createElement("div");
+        thumbWrapper.className = "frame-thumb-box" + (idx === currentFrameIndex ? " active" : "");
+        thumbWrapper.draggable = true;
+        
+        const thumbCanvas = document.createElement("canvas");
+        thumbCanvas.width = 80; thumbCanvas.height = 60;
+        const tCtx = thumbCanvas.getContext("2d");
+        tCtx.fillStyle = "#ffffff"; tCtx.fillRect(0, 0, 80, 60);
+        
+        frameObj.layers.forEach(layerDataUrl => {
+            const img = new Image(); img.src = layerDataUrl;
+            if (img.complete) tCtx.drawImage(img, 0, 0, 80, 60);
+        });
+        thumbWrapper.appendChild(thumbCanvas);
+        
+        const numBadge = document.createElement("div");
+        numBadge.className = "frame-number"; numBadge.innerText = idx + 1;
+        thumbWrapper.appendChild(numBadge);
+        
+        const actionBox = document.createElement("div");
+        actionBox.className = "frame-actions-pop";
+        const btnClone = document.createElement("div"); btnClone.className = "frame-pop-btn"; btnClone.innerText = "📋";
+        btnClone.onclick = (e) => { e.stopPropagation(); executeFrameDuplicate(idx); };
+        const btnDelete = document.createElement("div"); btnDelete.className = "frame-pop-btn"; btnDelete.innerText = "❌";
+        btnDelete.onclick = (e) => { e.stopPropagation(); executeFrameDeletion(idx); };
+        
+        actionBox.appendChild(btnClone); actionBox.appendChild(btnDelete);
+        thumbWrapper.appendChild(actionBox);
+        
+        thumbWrapper.onclick = () => {
+            if(isPlaying) stopPlaybackLoop();
+            saveActiveWorkspaceToMemory(); loadFrameToWorkspace(idx); renderTimelineFrames();
+        };
+        
+        thumbWrapper.addEventListener("dragstart", (e) => { draggedFrameIndex = idx; });
+        thumbWrapper.addEventListener("dragover", (e) => { e.preventDefault(); });
+        thumbWrapper.addEventListener("drop", (e) => {
+            e.preventDefault();
+            if(draggedFrameIndex !== null && draggedFrameIndex !== idx) {
+                const targetElement = animationFrames.splice(draggedFrameIndex, 1)[0];
+                animationFrames.splice(idx, 0, targetElement);
+                currentFrameIndex = idx;
+                captureGlobalSystemHistory(); loadFrameToWorkspace(currentFrameIndex); renderTimelineFrames();
+            }
+            draggedFrameIndex = null;
+        });
+        trackContainer.appendChild(thumbWrapper);
+    });
+    updateFrameCountLabel();
+}
+
+function executeFrameDuplicate(idx) {
+    saveActiveWorkspaceToMemory();
+    const sourceFrame = animationFrames[idx];
+    animationFrames.splice(idx + 1, 0, { layers: [...sourceFrame.layers] });
+    currentFrameIndex = idx + 1;
+    captureGlobalSystemHistory(); loadFrameToWorkspace(currentFrameIndex); renderTimelineFrames();
+}
+
+function executeFrameDeletion(idx) {
+    if(animationFrames.length <= 1) return;
+    animationFrames.splice(idx, 1);
+    if(currentFrameIndex >= animationFrames.length) currentFrameIndex = animationFrames.length - 1;
+    captureGlobalSystemHistory(); loadFrameToWorkspace(currentFrameIndex); renderTimelineFrames();
+}
+
+/* =========================================================
+   ANIMATION CONTROLLERS & REALTIME MINI WINDOW
+========================================================= */
+function startPlaybackLoop() {
+    if(isPlaying) return;
+    saveActiveWorkspaceToMemory(); isPlaying = true;
+    document.getElementById("onionSkinBackendContainer").innerHTML = "";
+    document.getElementById("onionSkinFrontendContainer").innerHTML = "";
+    interCtx.clearRect(0, 0, WIDTH, HEIGHT);
+    
+    playbackIntervalId = setInterval(() => {
+        currentFrameIndex++;
+        if(currentFrameIndex >= animationFrames.length) {
+            if(document.getElementById("chkLoop").checked) currentFrameIndex = 0;
+            else { stopPlaybackLoop(); return; }
+        }
+        loadFrameToWorkspace(currentFrameIndex);
+        highlightTimelineActiveFrameNodeOnly();
+    }, 1000 / fps);
+    document.getElementById("btnPlay").innerText = "⏸ Pause";
+}
+
+function stopPlaybackLoop() {
+    if(!isPlaying) return;
+    clearInterval(playbackIntervalId); isPlaying = false;
+    document.getElementById("btnPlay").innerText = "▶ Play";
+    loadFrameToWorkspace(currentFrameIndex); renderTimelineFrames();
+}
+
+function highlightTimelineActiveFrameNodeOnly() {
+    document.querySelectorAll(".frame-thumb-box").forEach((box, i) => {
+        if(i === currentFrameIndex) box.classList.add("active"); else box.classList.remove("active");
+    });
+    updateFrameCountLabel();
+}
+
+let miniFrameIdx = 0;
+function startMiniPlayerDaemon() {
+    setInterval(() => {
+        if(animationFrames.length === 0) return;
+        miniFrameIdx = isPlaying ? currentFrameIndex : (miniFrameIdx + 1) % animationFrames.length;
+        
+        const targetFrame = animationFrames[miniFrameIdx];
+        if(!targetFrame) return;
+        
+        miniPreviewCtx.fillStyle = "#ffffff"; miniPreviewCtx.fillRect(0, 0, WIDTH, HEIGHT);
+        targetFrame.layers.forEach(layerDataUrl => {
+            const img = new Image(); img.src = layerDataUrl;
+            if(img.complete) miniPreviewCtx.drawImage(img, 0, 0);
+        });
+    }, 140);
+}
+
+/* =========================================================
+   ⚡ 외부 라이브러리 (gifshot) 연동 고품질 GIF 빌드 엔진 ⚡
+========================================================= */
+function compileAndDownloadGIF() {
+    saveActiveWorkspaceToMemory();
+    document.getElementById("status").innerText = "Preparing frames for high-quality export...";
+    
+    const totalFrames = animationFrames.length;
+    const imagesArray = [];
+    let completedFrames = 0;
+
+    // 모든 프레임의 레이어를 단일 화이트 백그라운드 이미지로 순서대로 병합
+    animationFrames.forEach((fObj, fIdx) => {
+        const renderCanvas = document.createElement("canvas");
+        renderCanvas.width = WIDTH;
+        renderCanvas.height = HEIGHT;
+        const rCtx = renderCanvas.getContext("2d");
+        
+        rCtx.fillStyle = "#ffffff";
+        rCtx.fillRect(0, 0, WIDTH, HEIGHT);
+        
+        let loadedLayers = 0;
+        fObj.layers.forEach(lUrl => {
+            const img = new Image();
+            img.src = lUrl;
+            
+            const appendLayer = () => {
+                rCtx.drawImage(img, 0, 0);
+                loadedLayers++;
+                if (loadedLayers === LAYER_COUNT) {
+                    imagesArray[fIdx] = renderCanvas.toDataURL("image/png");
+                    completedFrames++;
+                    if (completedFrames === totalFrames) {
+                        triggerGifshotProcessing(imagesArray);
+                    }
+                }
+            };
+            if (img.complete) appendLayer(); else img.onload = appendLayer;
+        });
+    });
+}
+
+function triggerGifshotProcessing(imagesDataUrls) {
+    document.getElementById("status").innerText = "Encoding GIF via web-workers... (No freezing)";
+    
+    // gifshot 라이브러리 파라미터 구성 호출
+    gifshot.createGIF({
+        images: imagesDataUrls,
+        gifWidth: WIDTH,
+        gifHeight: HEIGHT,
+        interval: 1 / fps,     // 타임라인 슬라이더 연동 실시간 속도
+        numWorkers: 2,         // 멀티 스레드 분할 처리 가속화
+        sampleInterval: 5,     // 컬러 팔레트 추출 정밀도 (기본값 10보다 선명함)
+        progressCallback: function(captureProgress) {
+            document.getElementById("status").innerText = `Encoding Progress: ${Math.round(captureProgress * 100)}%`;
+        }
+    }, function(obj) {
+        if(!obj.error) {
+            const dlLink = document.createElement("a");
+            dlLink.download = "studio_animation_pro.gif";
+            dlLink.href = obj.image; // 완성된 256색 고품질 GIF 바이너리 스트림
+            dlLink.click();
+            document.getElementById("status").innerText = "GIF Download Triggered Successfully!";
+        } else {
+            document.getElementById("status").innerText = "Export Error: " + obj.errorMsg;
+        }
+    });
+}
+
+function exportToPNGSequenceZip() {
+    saveActiveWorkspaceToMemory();
+    animationFrames.forEach((frameObj, idx) => {
+        const temp = document.createElement("canvas"); temp.width = WIDTH; temp.height = HEIGHT;
+        const tCtx = temp.getContext("2d"); tCtx.fillStyle = "#ffffff"; tCtx.fillRect(0, 0, WIDTH, HEIGHT);
+        frameObj.layers.forEach(lUrl => { const img = new Image(); img.src = lUrl; if(img.complete) tCtx.drawImage(img, 0, 0); });
+        
+        const link = document.createElement("a"); link.download = `sequence_${idx+1}.png`;
+        link.href = temp.toDataURL("image/png"); link.click();
+    });
+}
+
+function exportAsCompositeSpriteSheet() {
+    saveActiveWorkspaceToMemory();
+    const composite = document.createElement("canvas");
+    composite.width = WIDTH * animationFrames.length; composite.height = HEIGHT;
+    const cCtx = composite.getContext("2d");
+    
+    animationFrames.forEach((frameObj, idx) => {
+        const ox = idx * WIDTH; cCtx.fillStyle = "#ffffff"; cCtx.fillRect(ox, 0, WIDTH, HEIGHT);
+        frameObj.layers.forEach(lUrl => { const img = new Image(); img.src = lUrl; if(img.complete) cCtx.drawImage(img, ox, 0, WIDTH, HEIGHT); });
+    });
+    const link = document.createElement("a"); link.download = "spritesheet.png";
+    link.href = composite.toDataURL("image/png"); link.click();
+}
+
+/* =========================================================
+   UI CORE GENERATORS & BINDINGS HOOKS
+========================================================= */
+function generateColorPalette() {
+    const paletteColors = ["#000000","#7f7f7f","#880015","#ed1c24","#ff7f27","#fff200","#22b14c","#00a2e8","#3f48cc","#a349a4","#ffffff","#c3c3c3","#b97a57","#ffaec9","#b5e61d","#99d9ea"];
+    const pNode = document.getElementById("palette"); pNode.innerHTML = "";
+    paletteColors.forEach(c => {
+        const d = document.createElement("div"); d.className = "color-box"; d.style.background = c;
+        d.onclick = () => { color = c; document.getElementById("colorPicker").value = c; updateColorPreviewIndicator(); };
+        pNode.appendChild(d);
+    });
+}
+function generateLayerPanelUI() {
+    const panel = document.getElementById("layerPanel"); panel.innerHTML = "";
+    for(let i = LAYER_COUNT - 1; i >= 0; i--) {
+        const btn = document.createElement("button"); btn.className = "layer-btn"; btn.id = "lblLayerBtn_" + i; btn.innerText = "L" + (i + 1);
+        btn.onclick = () => { currentLayer = i; updateLayerSelectionHighlight(); };
+        panel.appendChild(btn);
+    }
+    updateLayerSelectionHighlight();
+}
+function updateLayerSelectionHighlight() {
+    document.querySelectorAll(".layer-btn").forEach(b => b.classList.remove("active"));
+    const activeBtn = document.getElementById("lblLayerBtn_" + currentLayer); if(activeBtn) activeBtn.classList.add("active");
+}
+function updateColorPreviewIndicator() { document.getElementById("previewColor").style.background = color; }
+function updateFrameCountLabel() { document.getElementById("frameCounterDisplay").innerText = `Frame: ${currentFrameIndex + 1} / ${animationFrames.length}`; }
+function drawGridOverlay() {
+    gridCtx.clearRect(0, 0, WIDTH, HEIGHT); if(!gridVisible) return;
+    gridCtx.strokeStyle = "rgba(0, 0, 0, 0.12)"; gridCtx.lineWidth = 1;
+    for(let x = 0; x < WIDTH; x += 20) { gridCtx.beginPath(); gridCtx.moveTo(x, 0); gridCtx.lineTo(x, HEIGHT); gridCtx.stroke(); }
+    for(let y = 0; y < HEIGHT; y += 20) { gridCtx.beginPath(); gridCtx.moveTo(0, y); gridCtx.lineTo(WIDTH, y); gridCtx.stroke(); }
+}
+
+document.querySelectorAll(".tool").forEach(tNode => {
+    tNode.onclick = () => {
+        document.querySelectorAll(".tool").forEach(a => a.classList.remove("active"));
+        tNode.classList.add("active"); currentTool = tNode.dataset.tool;
+    };
+});
+document.getElementById("colorPicker").oninput = (e) => { color = e.target.value; updateColorPreviewIndicator(); };
+const szRange = document.getElementById("brushSize"), szNum = document.getElementById("brushNumber");
+szRange.oninput = (e) => { brushSize = e.target.value; szNum.value = brushSize; };
+szNum.oninput = (e) => { brushSize = e.target.value; szRange.value = brushSize; };
+document.getElementById("opacity").oninput = (e) => { opacity = e.target.value; };
+document.getElementById("undoBtn").onclick = () => executeHistoryUndo();
+document.getElementById("redoBtn").onclick = () => executeHistoryRedo();
+
+// BRUSH PRESET MODIFIER INJECTORS
+document.getElementById("presetPen").onclick = () => {
+    activePreset = "pen"; document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active")); document.getElementById("presetPen").classList.add("active");
+    brushSize = 4; szRange.value = 4; szNum.value = 4; opacity = 1; document.getElementById("opacity").value = 1;
+};
+document.getElementById("presetPencil").onclick = () => {
+    activePreset = "pencil"; document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active")); document.getElementById("presetPencil").classList.add("active");
+    brushSize = 3; szRange.value = 3; szNum.value = 3; opacity = 0.55; document.getElementById("opacity").value = 0.55;
+};
+document.getElementById("presetAirbrush").onclick = () => {
+    activePreset = "airbrush"; document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active")); document.getElementById("presetAirbrush").classList.add("active");
+    brushSize = 30; szRange.value = 30; szNum.value = 30; opacity = 0.25; document.getElementById("opacity").value = 0.25;
+};
+
+document.getElementById("resizeCanvas").onclick = () => {
+    const w = parseInt(document.getElementById("canvasW").value), h = parseInt(document.getElementById("canvasH").value);
+    if(w > 100 && h > 100) { saveActiveWorkspaceToMemory(); resizeCanvasLayout(w, h); loadFrameToWorkspace(currentFrameIndex); renderTimelineFrames(); }
+};
+document.getElementById("rotateBtn").onclick = () => {
+    uiContexts.forEach(ctx => {
+        const buffer = document.createElement("canvas"); buffer.width = WIDTH; buffer.height = HEIGHT;
+        buffer.getContext("2d").drawImage(ctx.canvas, 0, 0);
+        ctx.clearRect(0, 0, WIDTH, HEIGHT); ctx.save(); ctx.translate(WIDTH/2, HEIGHT/2); ctx.rotate(Math.PI / 2); ctx.drawImage(buffer, -WIDTH/2, -HEIGHT/2); ctx.restore();
+    });
+    saveActiveWorkspaceToMemory(); captureGlobalSystemHistory(); renderTimelineFrames();
+};
+document.getElementById("clearBtn").onclick = () => { uiContexts.forEach(ctx => ctx.clearRect(0, 0, WIDTH, HEIGHT)); saveActiveWorkspaceToMemory(); captureGlobalSystemHistory(); renderTimelineFrames(); };
+document.getElementById("toggleGrid").onclick = () => { gridVisible = !gridVisible; drawGridOverlay(); };
+document.getElementById("toggleLightbox").onclick = () => {
+    lightboxMode = !lightboxMode; const cBox = document.getElementById("canvasContainer");
+    if(lightboxMode) { cBox.classList.add("lightbox-mode"); onionSkinMaxOpacity = 0.75; } else { cBox.classList.remove("lightbox-mode"); onionSkinMaxOpacity = 0.35; }
+    renderOnionSkinOverlays();
+};
+
+document.getElementById("btnPlay").onclick = () => { if(isPlaying) stopPlaybackLoop(); else startPlaybackLoop(); };
+document.getElementById("btnStop").onclick = () => stopPlaybackLoop();
+document.getElementById("animFPS").oninput = (e) => {
+    fps = parseInt(e.target.value); document.getElementById("txtFPS").innerText = fps;
+    if(isPlaying) { stopPlaybackLoop(); startPlaybackLoop(); }
+};
+document.getElementById("onionCount").onchange = (e) => { onionSkinCount = parseInt(e.target.value); renderOnionSkinOverlays(); };
+document.getElementById("onionOpacityRange").oninput = (e) => { onionSkinMaxOpacity = parseFloat(e.target.value); renderOnionSkinOverlays(); };
+document.getElementById("chkInterpolationGuide").onchange = (e) => { interpolationGuide = e.target.checked; drawInterpolationGuides(); };
+document.getElementById("btnAddFrame").onclick = () => {
+    saveActiveWorkspaceToMemory(); animationFrames.splice(currentFrameIndex + 1, 0, generateBlankFrameTemplate());
+    currentFrameIndex++; captureGlobalSystemHistory(); loadFrameToWorkspace(currentFrameIndex); renderTimelineFrames();
+};
+document.getElementById("btnClearAllFrames").onclick = () => { if(confirm("Erase current timeline project?")) { createNewProject(); captureGlobalSystemHistory(); } };
+document.getElementById("menuNewAnim").onclick = () => { if(confirm("Start clean canvas project?")) { createNewProject(); globalHistoryStack = []; globalHistoryPointer = -1; captureGlobalSystemHistory(); } };
+
+document.getElementById("btnCopyLayer").onclick = () => copyActiveLayerToTargetFrame();
+document.getElementById("menuExportSequence").onclick = () => exportToPNGSequenceZip();
+document.getElementById("menuExportSprite").onclick = () => exportAsCompositeSpriteSheet();
+
+// 🎬 고품질 외부 라이브러리 GIF 내보내기 액션 연결
+document.getElementById("menuExportGIF").onclick = () => compileAndDownloadGIF();
+
+window.onload = () => { initWorkspace(); };
+setInterval(() => {
+    document.getElementById("status").innerText = `Tool: ${currentTool.toUpperCase()} | Preset: ${activePreset.toUpperCase()} | Layer Slot: L${currentLayer+1} | Brush Size: ${brushSize}px | Resolution: ${WIDTH}x${HEIGHT}`;
+}, 300);
+</script>
+</body>
 </html>
