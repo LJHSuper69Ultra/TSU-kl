@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Untitled</title>
+    
+
+  </head>
+    
+  <body>
+  <!--
+===========================================================
+ADVANCED RETRO PAINT / FRAME ANIMATION EDITOR
+Single HTML File
+Pure HTML + CSS + JavaScript
+===========================================================
+
+NEW ADVANCED FEATURES
+- Multi Frame Animation System
+- Copy Layer To Other Frame
+- Interpolation Assist
+- Brush Presets
+- Pressure Sensitivity Simulation
+- Animation Preview Player
+- Global Undo/Redo History
+- Onion Skin
+- Timeline
+
+===========================================================
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Retro Paint Animator</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    user-select:none;
+}
+
+body{
+    font-family:Segoe UI,Tahoma,sans-serif;
+    background:#c8c8c8;
+    height:100vh;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+}
+
+/* =========================
+MENU
+========================= */
+
+.menu{
+    height:34px;
+    background:linear-gradient(#f5f5f5,#d2d2d2);
+    border-bottom:2px solid #888;
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:0 12px;
+}
+
+.menu div{
+    cursor:pointer;
+}
+
+/* =========================
+MAIN
+========================= */
+
+.main{
+    flex:1;
+    display:flex;
+    overflow:hidden;
+}
+
+/* =========================
+LEFT TOOLBAR
+========================= */
+
+.toolbar{
+    width:90px;
+    background:#d6d6d6;
+    border-right:2px solid #888;
+    padding:6px;
+    overflow-y:auto;
+}
+
+.tool{
+    height:56px;
+    border:2px solid #777;
+    background:#f2f2f2;
+    margin-bottom:6px;
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-size:11px;
+    cursor:pointer;
+    transition:.15s;
+}
+
+.tool:hover{
+    transform:scale(1.02);
+}
+
+.tool.active{
+    background:#0a64ad;
+    color:white;
+}
+
+/* =========================
+RIGHT
+========================= */
+
+.right{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+}
+
+/* =========================
+TOP BAR
+========================= */
+
+.topbar{
+    background:#e3e3e3;
+    border-bottom:2px solid #999;
+    padding:8px;
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    align-items:center;
+    overflow-y:auto;
+}
+
+.palette{
+    display:grid;
+    grid-template-columns:repeat(8,20px);
+    gap:4px;
+}
+
+.color{
+    width:20px;
+    height:20px;
+    border:1px solid #000;
+    cursor:pointer;
+}
+
+.preview{
+    width:36px;
+    height:36px;
+    border:2px solid #000;
+}
+
+button,input,select{
+    padding:4px;
+    font-size:12px;
+}
+
+/* =========================
+WORKSPACE
+========================= */
+
+.workspace{
+    flex:1;
+    overflow:auto;
+    background:#808080;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+}
+
+.canvasWrap{
+    position:relative;
+    background:white;
+    box-shadow:0 0 14px rgba(0,0,0,.5);
+}
+
+canvas{
+    position:absolute;
+    top:0;
+    left:0;
+    touch-action:none;
+}
+
+/* =========================
+TIMELINE
+========================= */
+
+.timeline{
+    height:110px;
+    background:#dadada;
+    border-top:2px solid #888;
+    overflow-x:auto;
+    display:flex;
+    align-items:center;
+    padding:10px;
+    gap:8px;
+}
+
+.frame{
+    min-width:90px;
+    height:80px;
+    border:3px solid #777;
+    background:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    position:relative;
+    font-size:12px;
+}
+
+.frame.active{
+    border-color:#0a64ad;
+}
+
+.frame canvas{
+    width:100%;
+    height:100%;
+    position:absolute;
+}
+
+/* =========================
+PREVIEW PLAYER
+========================= */
+
+.previewPlayer{
+    position:absolute;
+    right:20px;
+    top:20px;
+    width:220px;
+    background:#efefef;
+    border:3px solid #666;
+    z-index:100;
+    padding:8px;
+}
+
+.previewPlayer canvas{
+    position:relative;
+    width:100%;
+    background:white;
+    border:1px solid #000;
+}
+
+.status{
+    height:28px;
+    background:#ddd;
+    border-top:2px solid #999;
+    display:flex;
+    align-items:center;
+    padding:0 10px;
+    font-size:12px;
+}
+
+@media(max-width:850px){
+
+    .previewPlayer{
+        width:160px;
+    }
+
+    .toolbar{
+        width:72px;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="menu">
+    <div>File</div>
+    <div>Edit</div>
+    <div>Animation</div>
+    <div>View</div>
+</div>
+
+<div class="main">
+
+    <!-- ======================
+    TOOLS
+    ======================= -->
+
+    <div class="toolbar">
+
+        <div class="tool active" data-tool="brush">✏️<br>Brush</div>
+        <div class="tool" data-tool="eraser">🧽<br>Eraser</div>
+        <div class="tool" data-tool="line">／<br>Line</div>
+        <div class="tool" data-tool="rect">▭<br>Rect</div>
+        <div class="tool" data-tool="circle">◯<br>Circle</div>
+        <div class="tool" data-tool="fill">🪣<br>Fill</div>
+        <div class="tool" data-tool="text">T<br>Text</div>
+        <div class="tool" data-tool="eyedropper">🎯<br>Pick</div>
+
+    </div>
+
+    <!-- ======================
+    RIGHT
+    ======================= -->
+
+    <div class="right">
+
+        <!-- ======================
+        TOPBAR
+        ======================= -->
+
+        <div class="topbar">
+
+            <div class="palette" id="palette"></div>
+
+            <input type="color" id="colorPicker">
+
+            <div class="preview" id="preview"></div>
+
+            Size
+            <input type="range" min="1" max="80" value="5" id="sizeSlider">
+
+            Opacity
+            <input type="range" min="0.1" max="1" step="0.1" value="1" id="opacity">
+
+            Brush Preset
+
+            <select id="preset">
+                <option value="pen">Pen</option>
+                <option value="pencil">Pencil</option>
+                <option value="airbrush">Airbrush</option>
+            </select>
+
+            FPS
+            <input type="number" id="fps" value="6" style="width:60px;">
+
+            <button id="playBtn">▶ Play</button>
+
+            <button id="addFrame">+ Frame</button>
+
+            <button id="copyFrame">Copy Frame</button>
+
+            <button id="interpolateBtn">Interpolation</button>
+
+            <button id="undoBtn">Undo</button>
+
+            <button id="redoBtn">Redo</button>
+
+            <label>
+                <input type="checkbox" id="onion">
+                Onion Skin
+            </label>
+
+        </div>
+
+        <!-- ======================
+        WORKSPACE
+        ======================= -->
+
+        <div class="workspace">
+
+            <div class="canvasWrap" id="canvasWrap"></div>
+
+            <!-- ======================
+            PREVIEW
+            ======================= -->
+
+            <div class="previewPlayer">
+
+                <div style="font-size:13px;margin-bottom:6px;">
+                    Animation Preview
+                </div>
+
+                <canvas id="previewCanvas" width="200" height="150"></canvas>
+
+            </div>
+
+        </div>
+
+        <!-- ======================
+        TIMELINE
+        ======================= -->
+
+        <div class="timeline" id="timeline"></div>
+
+        <div class="status" id="status">
+            Ready
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+/* ======================================================
+SETUP
+====================================================== */
+
+const WIDTH = 800;
+const HEIGHT = 600;
+
+const MAX_LAYERS = 5;
+
+const canvasWrap = document.getElementById("canvasWrap");
+
+canvasWrap.style.width = WIDTH + "px";
+canvasWrap.style.height = HEIGHT + "px";
+
+/* ======================================================
+STATE
+====================================================== */
+
+let currentTool = "brush";
+let currentColor = "#000000";
+let brushSize = 5;
+let opacity = 1;
+
+let drawing = false;
+
+let startX = 0;
+let startY = 0;
+
+let currentFrame = 0;
+
+let pressureSimulation = true;
+
+let lastMoveTime = performance.now();
+
+let history = [];
+let redoHistory = [];
+
+/* ======================================================
+FRAMES
+====================================================== */
+
+const frames = [];
+
+function createFrame(){
+
+    const frame = {
+        layers: [],
+        contexts: []
+    };
+
+    for(let i=0;i<MAX_LAYERS;i++){
+
+        const c = document.createElement("canvas");
+
+        c.width = WIDTH;
+        c.height = HEIGHT;
+
+        c.style.zIndex = i;
+
+        const ctx = c.getContext("2d");
+
+        frame.layers.push(c);
+        frame.contexts.push(ctx);
+
+    }
+
+    frames.push(frame);
+
+}
+
+createFrame();
+
+/* ======================================================
+SHOW FRAME
+====================================================== */
+
+function renderFrame(){
+
+    canvasWrap.innerHTML = "";
+
+    const frame = frames[currentFrame];
+
+    frame.layers.forEach(c=>{
+        canvasWrap.appendChild(c);
+    });
+
+    updateTimeline();
+
+    if(document.getElementById("onion").checked){
+
+        renderOnionSkin();
+
+    }
+
+}
+
+renderFrame();
+
+/* ======================================================
+ONION SKIN
+====================================================== */
+
+function renderOnionSkin(){
+
+    if(currentFrame <= 0) return;
+
+    const prev = mergeFrame(currentFrame-1);
+
+    prev.style.opacity = 0.2;
+
+    prev.style.pointerEvents = "none";
+
+    canvasWrap.insertBefore(prev,canvasWrap.firstChild);
+
+}
+
+/* ======================================================
+MERGE FRAME
+====================================================== */
+
+function mergeFrame(index){
+
+    const temp = document.createElement("canvas");
+
+    temp.width = WIDTH;
+    temp.height = HEIGHT;
+
+    const t = temp.getContext("2d");
+
+    t.fillStyle = "white";
+    t.fillRect(0,0,WIDTH,HEIGHT);
+
+    frames[index].layers.forEach(l=>{
+        t.drawImage(l,0,0);
+    });
+
+    return temp;
+
+}
+
+/* ======================================================
+TIMELINE
+====================================================== */
+
+function updateTimeline(){
+
+    const tl = document.getElementById("timeline");
+
+    tl.innerHTML = "";
+
+    frames.forEach((f,index)=>{
+
+        const div = document.createElement("div");
+
+        div.className = "frame";
+
+        if(index === currentFrame){
+            div.classList.add("active");
+        }
+
+        const mini = mergeFrame(index);
+
+        mini.width = 90;
+        mini.height = 80;
+
+        div.appendChild(mini);
+
+        div.onclick = ()=>{
+
+            currentFrame = index;
+
+            renderFrame();
+
+        };
+
+        tl.appendChild(div);
+
+    });
+
+}
+
+updateTimeline();
+
+/* ======================================================
+PALETTE
+====================================================== */
+
+const colors = [
+"#000","#777","#880015","#ed1c24",
+"#ff7f27","#fff200","#22b14c","#00a2e8",
+"#3f48cc","#a349a4","#fff","#c3c3c3",
+"#b97a57","#ffaec9","#b5e61d","#99d9ea"
+];
+
+const palette = document.getElementById("palette");
+
+colors.forEach(c=>{
+
+    const d = document.createElement("div");
+
+    d.className = "color";
+
+    d.style.background = c;
+
+    d.onclick = ()=>{
+
+        currentColor = c;
+
+        updatePreview();
+
+    };
+
+    palette.appendChild(d);
+
+});
+
+function updatePreview(){
+
+    document.getElementById("preview").style.background = currentColor;
+
+}
+
+updatePreview();
+
+/* ======================================================
+TOOLS
+====================================================== */
+
+document.querySelectorAll(".tool").forEach(t=>{
+
+    t.onclick = ()=>{
+
+        document.querySelectorAll(".tool")
+        .forEach(a=>a.classList.remove("active"));
+
+        t.classList.add("active");
+
+        currentTool = t.dataset.tool;
+
+    };
+
+});
+
+/* ======================================================
+INPUTS
+====================================================== */
+
+document.getElementById("colorPicker").oninput = e=>{
+    currentColor = e.target.value;
+    updatePreview();
+};
+
+document.getElementById("sizeSlider").oninput = e=>{
+    brushSize = parseInt(e.target.value);
+};
+
+document.getElementById("opacity").oninput = e=>{
+    opacity = parseFloat(e.target.value);
+};
+
+/* ======================================================
+GLOBAL HISTORY
+====================================================== */
+
+function saveHistory(){
+
+    const snapshot = [];
+
+    frames.forEach(frame=>{
+
+        const frameData = [];
+
+        frame.layers.forEach(l=>{
+            frameData.push(l.toDataURL());
+        });
+
+        snapshot.push(frameData);
+
+    });
+
+    history.push(snapshot);
+
+    if(history.length > 80){
+        history.shift();
+    }
+
+}
+
+saveHistory();
+
+function restore(snapshot){
+
+    snapshot.forEach((frameData,fi)=>{
+
+        frameData.forEach((src,li)=>{
+
+            const img = new Image();
+
+            img.onload = ()=>{
+
+                const ctx = frames[fi].contexts[li];
+
+                ctx.clearRect(0,0,WIDTH,HEIGHT);
+
+                ctx.drawImage(img,0,0);
+
+            };
+
+            img.src = src;
+
+        });
+
+    });
+
+}
+
+document.getElementById("undoBtn").onclick = ()=>{
+
+    if(history.length < 2) return;
+
+    const current = history.pop();
+
+    redoHistory.push(current);
+
+    restore(history[history.length-1]);
+
+};
+
+document.getElementById("redoBtn").onclick = ()=>{
+
+    if(redoHistory.length < 1) return;
+
+    const state = redoHistory.pop();
+
+    history.push(state);
+
+    restore(state);
+
+};
+
+/* ======================================================
+DRAW EVENTS
+====================================================== */
+
+function addCanvasEvents(c){
+
+    c.addEventListener("mousedown",startDraw);
+    c.addEventListener("touchstart",startDraw);
+
+    c.addEventListener("mousemove",draw);
+    c.addEventListener("touchmove",draw);
+
+    c.addEventListener("mouseup",endDraw);
+    c.addEventListener("mouseleave",endDraw);
+    c.addEventListener("touchend",endDraw);
+
+}
+
+frames[0].layers.forEach(addCanvasEvents);
+
+/* ======================================================
+POSITION
+====================================================== */
+
+function getPos(e){
+
+    const rect = canvasWrap.getBoundingClientRect();
+
+    let x,y;
+
+    if(e.touches){
+
+        x = e.touches[0].clientX - rect.left;
+        y = e.touches[0].clientY - rect.top;
+
+    }else{
+
+        x = e.clientX - rect.left;
+        y = e.clientY - rect.top;
+
+    }
+
+    return {x,y};
+
+}
+
+/* ======================================================
+DRAW
+====================================================== */
+
+function startDraw(e){
+
+    e.preventDefault();
+
+    drawing = true;
+
+    const p = getPos(e);
+
+    startX = p.x;
+    startY = p.y;
+
+    const ctx = frames[currentFrame].contexts[0];
+
+    ctx.beginPath();
+    ctx.moveTo(startX,startY);
+
+}
+
+function draw(e){
+
+    if(!drawing) return;
+
+    const p = getPos(e);
+
+    const x = p.x;
+    const y = p.y;
+
+    const ctx = frames[currentFrame].contexts[0];
+
+    const now = performance.now();
+
+    const speed = Math.hypot(x-startX,y-startY)/(now-lastMoveTime+1);
+
+    lastMoveTime = now;
+
+    let dynamicSize = brushSize;
+
+    /* ==========================================
+    PRESSURE SIMULATION
+    Faster = thinner
+    Slower = thicker
+    ========================================== */
+
+    if(pressureSimulation){
+
+        dynamicSize = Math.max(
+            1,
+            brushSize * (2-speed)
+        );
+
+    }
+
+    ctx.globalAlpha = opacity;
+
+    ctx.strokeStyle = currentColor;
+
+    ctx.fillStyle = currentColor;
+
+    const preset = document.getElementById("preset").value;
+
+    /* ==========================================
+    PRESETS
+    ========================================== */
+
+    if(preset === "pen"){
+
+        ctx.lineWidth = dynamicSize;
+        ctx.globalAlpha = opacity;
+
+    }
+
+    if(preset === "pencil"){
+
+        ctx.lineWidth = dynamicSize * 0.8;
+        ctx.globalAlpha = opacity * 0.5;
+
+    }
+
+    if(preset === "airbrush"){
+
+        ctx.lineWidth = dynamicSize * 2;
+        ctx.globalAlpha = opacity * 0.1;
+
+    }
+
+    if(currentTool === "brush"){
+
+        ctx.lineCap = "round";
+
+        ctx.lineTo(x,y);
+
+        ctx.stroke();
+
+    }
+
+    if(currentTool === "eraser"){
+
+        ctx.save();
+
+        ctx.globalCompositeOperation = "destination-out";
+
+        ctx.beginPath();
+
+        ctx.arc(x,y,dynamicSize,0,Math.PI*2);
+
+        ctx.fill();
+
+        ctx.restore();
+
+    }
+
+    startX = x;
+    startY = y;
+
+}
+
+function endDraw(){
+
+    if(!drawing) return;
+
+    drawing = false;
+
+    saveHistory();
+
+    updateTimeline();
+
+}
+
+/* ======================================================
+ADD FRAME
+====================================================== */
+
+document.getElementById("addFrame").onclick = ()=>{
+
+    createFrame();
+
+    frames[frames.length-1].layers.forEach(addCanvasEvents);
+
+    updateTimeline();
+
+};
+
+/* ======================================================
+COPY FRAME
+====================================================== */
+
+document.getElementById("copyFrame").onclick = ()=>{
+
+    const target = parseInt(
+        prompt("Copy current frame to which frame number?")
+    );
+
+    if(isNaN(target)) return;
+
+    if(target < 0 || target >= frames.length) return;
+
+    frames[currentFrame].layers.forEach((layer,i)=>{
+
+        frames[target].contexts[i]
+        .drawImage(layer,0,0);
+
+    });
+
+    updateTimeline();
+
+    saveHistory();
+
+};
+
+/* ======================================================
+INTERPOLATION ASSIST
+====================================================== */
+
+document.getElementById("interpolateBtn").onclick = ()=>{
+
+    if(currentFrame >= frames.length-1){
+        alert("Need next frame.");
+        return;
+    }
+
+    const current = mergeFrame(currentFrame);
+
+    const next = mergeFrame(currentFrame+1);
+
+    const midIndex = currentFrame + 1;
+
+    createFrame();
+
+    frames.splice(midIndex,0,frames.pop());
+
+    const ctx = frames[midIndex].contexts[0];
+
+    ctx.globalAlpha = 0.5;
+
+    ctx.drawImage(current,0,0);
+
+    ctx.drawImage(next,0,0);
+
+    updateTimeline();
+
+    saveHistory();
+
+};
+
+/* ======================================================
+ANIMATION PREVIEW
+====================================================== */
+
+let playing = false;
+let previewIndex = 0;
+
+const previewCanvas = document.getElementById("previewCanvas");
+const previewCtx = previewCanvas.getContext("2d");
+
+document.getElementById("playBtn").onclick = ()=>{
+
+    playing = !playing;
+
+    document.getElementById("playBtn").innerText =
+        playing ? "■ Stop" : "▶ Play";
+
+};
+
+setInterval(()=>{
+
+    if(!playing) return;
+
+    previewCtx.clearRect(
+        0,0,
+        previewCanvas.width,
+        previewCanvas.height
+    );
+
+    const merged = mergeFrame(previewIndex);
+
+    previewCtx.drawImage(
+        merged,
+        0,
+        0,
+        previewCanvas.width,
+        previewCanvas.height
+    );
+
+    previewIndex++;
+
+    if(previewIndex >= frames.length){
+        previewIndex = 0;
+    }
+
+},1000/6);
+
+/* ======================================================
+FPS
+====================================================== */
+
+document.getElementById("fps").oninput = ()=>{
+
+    // dynamic FPS can be extended later
+
+};
+
+/* ======================================================
+STATUS
+====================================================== */
+
+setInterval(()=>{
+
+    document.getElementById("status").innerText =
+        `Frame: ${currentFrame+1}/${frames.length} | Tool: ${currentTool} | Brush: ${brushSize}px`;
+
+},100);
+
+</script>
+
+</body>
+</html>
+    
+  </body>
+  
+</html>
